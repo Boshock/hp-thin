@@ -6,3 +6,4 @@ resources:
     #  - cloudflare.yaml
   - test-secret.yaml
   - test-secret2.yaml
+  - ingress.yaml
