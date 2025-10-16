@@ -29,6 +29,17 @@ spec:
         target:
           kind: PrometheusRule
   values:
-    grafana:
-      adminPassword: mischa
+      grafana:
+        adminPassword: mischa
+        ingress:
+          enabled: true
+          ingressClassName: traefik
+
+          hosts:
+            - grafana.boshock.ovh
+
+          tls:
+            - secretName: grafana-tls-secret
+              hosts:
+                - grafana.boshock.ovh
 
