@@ -1,0 +1,17 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: staging
+spec:
+  interval: 10m
+  path: ./clusters/staging
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  resources:
+  - apps.yaml
+  - infrastructure.yaml
+  - monitoring.yaml
+  - secrets.yaml
+  - velero.yaml

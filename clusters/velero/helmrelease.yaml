@@ -1,0 +1,47 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: velero
+  namespace: velero
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: velero
+      version: "~6.3"  
+      sourceRef:
+        kind: HelmRepository
+        name: velero
+  install:
+    createNamespace: true
+  values:
+    configuration:
+      backupStorageLocation:
+        - name: b2
+          provider: aws
+          bucket: k3s-velero-backup-boshock
+          config:
+            region: eu-central-003  
+            s3ForcePathStyle: "true"
+            s3Url: https://s3.eu-central-003.backblazeb2.com
+      volumeSnapshotLocation:
+        - name: b2
+          provider: aws
+          config:
+            region: eu-central-003
+    snapshotsEnabled: false
+    deployNodeAgent: true
+    nodeAgent:
+      privileged: true
+      podVolumePath: /var/lib/kubelet/pods
+    schedules:
+      full-cluster-daily:
+        schedule: "0 1 * * *"  # 01:00 daily
+        template:
+          ttl: "168h"  # 7 days
+          includedNamespaces: ["*"]
+          defaultVolumesToFsBackup: true
+    credentials:
+      useSecret: true
+      existingSecret: velero-creds 
+
