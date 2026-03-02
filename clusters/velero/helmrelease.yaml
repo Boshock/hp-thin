@@ -8,20 +8,24 @@ spec:
   chart:
     spec:
       chart: velero
-      version: "~9.1"  
+      version: "~11.4"
       sourceRef:
         kind: HelmRepository
         name: velero
   install:
     createNamespace: true
   values:
+    kubectl:
+      image:
+        repository: docker.io/bitnamilegacy/kubectl
+        tag: "1.32"
     configuration:
       backupStorageLocation:
         - name: b2
           provider: aws
           bucket: k3s-velero-backup-boshock
           config:
-            region: eu-central-003  
+            region: eu-central-003
             s3ForcePathStyle: "true"
             s3Url: https://s3.eu-central-003.backblazeb2.com
       volumeSnapshotLocation:
@@ -36,12 +40,11 @@ spec:
       podVolumePath: /var/lib/kubelet/pods
     schedules:
       full-cluster-daily:
-        schedule: "0 1 * * *"  # 01:00 daily
+        schedule: "0 1 * * *"
         template:
-          ttl: "168h"  # 7 days
+          ttl: "168h"
           includedNamespaces: ["*"]
           defaultVolumesToFsBackup: true
     credentials:
       useSecret: true
-      existingSecret: velero-creds 
-
+      existingSecret: velero-creds
