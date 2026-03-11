@@ -30,7 +30,7 @@ data:
   # ============================================================
   FORGEJO__security__INSTALL_LOCK: "true"
   FORGEJO__service__REQUIRE_SIGNIN_VIEW: "true"
-  FORGEJO__service__DISABLE_REGISTRATION: "true"
+  FORGEJO__service__DISABLE_REGISTRATION: "false"
 
   # ============================================================
   # Repository Settings
