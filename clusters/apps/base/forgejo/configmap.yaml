@@ -8,7 +8,7 @@ data:
   # Server Settings
   # ============================================================
   FORGEJO__server__DOMAIN: forgejo.boshock.ovh
-  FORGEJO__server__ROOT_URL: https://forgejo.boshock.ovh
+  FORGEJO__server__ROOT_URL: http://forgejo.boshock.ovh
   FORGEJO__server__HTTP_PORT: "3000"
   FORGEJO__server__SSH_DOMAIN: git.boshock.ovh
   FORGEJO__server__SSH_PORT: "2222"
@@ -30,7 +30,7 @@ data:
   # ============================================================
   FORGEJO__security__INSTALL_LOCK: "true"
   FORGEJO__service__REQUIRE_SIGNIN_VIEW: "true"
-  FORGEJO__service__DISABLE_REGISTRATION: "false"
+  FORGEJO__service__DISABLE_REGISTRATION: "true"
 
   # ============================================================
   # Repository Settings
