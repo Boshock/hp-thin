@@ -29,6 +29,7 @@ spec:
     configuration:
       backupStorageLocation:
         - name: b2
+          default: true
           provider: aws
           bucket: k3s-velero-backup-boshock
           validationFrequency: 2h
@@ -50,7 +51,8 @@ spec:
       full-cluster-daily:
         schedule: "0 1 1,15 * *"
         template:
-          ttl: "168h"
+          storageLocation: b2
+          ttl: "360h"
           includedNamespaces: ["*"]
           defaultVolumesToFsBackup: true
     credentials:
