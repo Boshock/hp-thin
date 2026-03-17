@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wikijs
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: wiki.boshock.ovh
+      http:
+        paths:
+          - backend:
+              service:
+                name: wikijs
+                port:
+                  number: 3000
+            path: /
+            pathType: Prefix

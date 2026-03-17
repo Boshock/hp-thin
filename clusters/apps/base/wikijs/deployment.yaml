@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wikijs-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wikijs-postgres
+  template:
+    metadata:
+      labels:
+        app: wikijs-postgres
+    spec:
+      securityContext:
+        fsGroup: 999
+        runAsUser: 999
+        runAsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: wikijs-configmap
+                  key: DB_NAME
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: wikijs-configmap
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wikijs-secret
+                  key: DB_PASS
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: wikijs-postgres-data
+              subPath: postgres
+      restartPolicy: Always
+      volumes:
+        - name: wikijs-postgres-data
+          persistentVolumeClaim:
+            claimName: wikijs-postgres-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wikijs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wikijs
+  template:
+    metadata:
+      labels:
+        app: wikijs
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: wikijs
+          image: ghcr.io/requarks/wiki:2
+          envFrom:
+            - configMapRef:
+                name: wikijs-configmap
+            - secretRef:
+                name: wikijs-secret
+          ports:
+            - containerPort: 3000
+      restartPolicy: Always
