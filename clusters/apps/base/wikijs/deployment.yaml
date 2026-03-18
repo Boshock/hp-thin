@@ -16,7 +16,7 @@ spec:
         fsGroup: 999
       containers:
         - name: postgres
-          image: postgres:15-alpine
+          image: postgres:18-alpine
           env:
             - name: POSTGRES_DB
               valueFrom:
@@ -36,7 +36,7 @@ spec:
           ports:
             - containerPort: 5432
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
+            - mountPath: /var/lib/postgresql
               name: wikijs-postgres-data
               subPath: postgres
       restartPolicy: Always
