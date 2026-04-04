@@ -18,6 +18,14 @@ spec:
         fsGroup: 1000
         runAsUser: 1000
         runAsGroup: 1000
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+        readOnlyRootFilesystem: true
 
       containers:
         - name: audiobookshelf
