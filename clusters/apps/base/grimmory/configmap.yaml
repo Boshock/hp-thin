@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grimmory-configmap
+  namespace: grimmory
+data:
+  # ============================================================
+  # Application
+  # ============================================================
+  TZ: "Etc/UTC"
+  SWAGGER_ENABLED: "false"
+  FORCE_DISABLE_OIDC: "false"
+
+  # ============================================================
+  # Database
+  # ============================================================
+  DATABASE_URL: "jdbc:mariadb://grimmory-mariadb:3306/grimmory"
+  DATABASE_USERNAME: "grimmory"
+
+  # ============================================================
+  # Storage
+  # ============================================================
+  DISK_TYPE: "LOCAL"
