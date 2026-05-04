@@ -1,6 +1,9 @@
 # ============================================================
 # MariaDB — backend database for Grimmory
 # ============================================================
+# NOTE: lscr.io/linuxserver/mariadb uses s6-overlay init which must
+# start as root to call addgroup/adduser before dropping to PUID/PGID.
+# runAsUser/runAsNonRoot are intentionally omitted at pod level.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -27,10 +30,7 @@ spec:
         policy-type: "db"
     spec:
       securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
+        fsGroup: 1000          # PVC ownership — safe at pod level
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -40,6 +40,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
+              add: ["CHOWN", "SETUID", "SETGID", "DAC_OVERRIDE"]  # required by s6-overlay user setup
           env:
             - name: PUID
               value: "1000"
@@ -104,6 +105,8 @@ spec:
 # ============================================================
 # Grimmory — application
 # ============================================================
+# NOTE: ghcr.io/grimmory-tools/grimmory also uses s6-overlay init.
+# Same reasoning as MariaDB above — root init drops to USER_ID/GROUP_ID.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -130,10 +133,7 @@ spec:
         policy-type: "app"
     spec:
       securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
-        runAsGroup: 1000
-        runAsNonRoot: true
+        fsGroup: 1000          # PVC ownership — safe at pod level
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -143,6 +143,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
+              add: ["CHOWN", "SETUID", "SETGID", "DAC_OVERRIDE"]  # required by s6-overlay user setup
           envFrom:
             - configMapRef:
                 name: grimmory-configmap
