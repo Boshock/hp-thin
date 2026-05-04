@@ -30,17 +30,18 @@ spec:
         policy-type: "db"
     spec:
       securityContext:
-        fsGroup: 1000          # PVC ownership — safe at pod level
+        fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
       containers:
         - name: mariadb
           image: lscr.io/linuxserver/mariadb:11.4.8
+          # allowPrivilegeEscalation must be true: s6-overlay switches UIDs via su-exec
           securityContext:
-            allowPrivilegeEscalation: false
+            allowPrivilegeEscalation: true
             capabilities:
               drop: ["ALL"]
-              add: ["CHOWN", "SETUID", "SETGID", "DAC_OVERRIDE"]  # required by s6-overlay user setup
+              add: ["CHOWN", "SETUID", "SETGID", "DAC_OVERRIDE"]
           env:
             - name: PUID
               value: "1000"
@@ -105,8 +106,9 @@ spec:
 # ============================================================
 # Grimmory — application
 # ============================================================
-# NOTE: ghcr.io/grimmory-tools/grimmory also uses s6-overlay init.
-# Same reasoning as MariaDB above — root init drops to USER_ID/GROUP_ID.
+# entrypoint.sh runs as root, calls addgroup/adduser/chown,
+# then exec su-exec USER_ID:GROUP_ID java ...
+# su-exec requires SETUID+SETGID and allowPrivilegeEscalation:true.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -133,17 +135,18 @@ spec:
         policy-type: "app"
     spec:
       securityContext:
-        fsGroup: 1000          # PVC ownership — safe at pod level
+        fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
       containers:
         - name: grimmory
           image: ghcr.io/grimmory-tools/grimmory:v3.0.3
+          # allowPrivilegeEscalation must be true: su-exec switches from root to USER_ID
           securityContext:
-            allowPrivilegeEscalation: false
+            allowPrivilegeEscalation: true
             capabilities:
               drop: ["ALL"]
-              add: ["CHOWN", "SETUID", "SETGID", "DAC_OVERRIDE"]  # required by s6-overlay user setup
+              add: ["CHOWN", "SETUID", "SETGID", "DAC_OVERRIDE"]
           envFrom:
             - configMapRef:
                 name: grimmory-configmap
