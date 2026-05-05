@@ -119,7 +119,7 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/part-of: grimmory
 spec:
-  replicas: 0 
+  replicas: 1 
   strategy:
     type: Recreate
   selector:
@@ -138,12 +138,26 @@ spec:
         fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
+      initContainers:
+        - name: fix-permissions
+          image: busybox:1.37
+          command: ["sh", "-c", "chown -R 1000:1000 /app/data /books /bookdrop"]
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: grimmory-data
+              mountPath: /app/data
+            - name: grimmory-books
+              mountPath: /books
+            - name: grimmory-bookdrop
+              mountPath: /bookdrop
       containers:
         - name: grimmory
           image: ghcr.io/grimmory-tools/grimmory:v3.0.3
           # allowPrivilegeEscalation must be true: su-exec switches from root to USER_ID
           securityContext:
             allowPrivilegeEscalation: true
+            runAsUser: 0
             capabilities:
               drop: ["ALL"]
               add: ["CHOWN", "SETUID", "SETGID", "DAC_OVERRIDE"]
