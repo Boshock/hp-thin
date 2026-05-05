@@ -31,6 +31,10 @@ spec:
       pullPolicy: IfNotPresent
 
     # MariaDB subchart (cloudpirates/mariadb:0.16.0)
+    # NOTE: the grimmory deployment template hardcodes `key: mariadb-password`
+    # in the DATABASE_PASSWORD secretKeyRef — secretKeys values are ignored.
+    # The secret referenced by existingSecret MUST contain a key named
+    # exactly `mariadb-password`. See secret.yaml.
     mariadb:
       enabled: true
       image:
@@ -39,9 +43,6 @@ spec:
         database: grimmory
         username: grimmory
         existingSecret: grimmory-secret
-        secretKeys:
-          userPasswordKey: MYSQL_PASSWORD
-          rootPasswordKey: MYSQL_ROOT_PASSWORD
       service:
         port: 3306
 
@@ -68,8 +69,6 @@ spec:
         cpu: "1000m"
         memory: "1Gi"
 
-    # livenessProbe and readinessProbe use tcpSocket on port http (6060)
-    # which is the upstream chart default — appropriate for a JVM app
     livenessProbe:
       tcpSocket:
         port: http
