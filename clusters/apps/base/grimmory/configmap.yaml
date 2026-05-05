@@ -7,7 +7,7 @@ data:
   # ============================================================
   # Application
   # ============================================================
-  TZ: "Etc/UTC"
+  TZ: "Europe/Warsaw"
   SWAGGER_ENABLED: "false"
   FORCE_DISABLE_OIDC: "false"
 

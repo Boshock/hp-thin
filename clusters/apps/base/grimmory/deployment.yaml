@@ -156,8 +156,10 @@ spec:
           image: ghcr.io/grimmory-tools/grimmory:v3.0.3
           # allowPrivilegeEscalation must be true: su-exec switches from root to USER_ID
           securityContext:
-            allowPrivilegeEscalation: true
-            runAsUser: 0
+            readOnlyRootFilesystem: false
+            allowPrivilegeEscalation: false
+            runAsGroup: 1000
+            runAsUser: 1000
             capabilities:
               drop: ["ALL"]
               add: ["CHOWN", "SETUID", "SETGID", "DAC_OVERRIDE"]
