@@ -4,6 +4,8 @@ metadata:
   name: grimmory
   namespace: grimmory
 spec:
+  # Set to false when ready to run again
+  suspend: true
   interval: 30m
   chart:
     spec:
@@ -69,17 +71,28 @@ spec:
         cpu: "1000m"
         memory: "1Gi"
 
+    # startupProbe gates liveness/readiness until the JVM is fully up.
+    # Spring Boot with 64 JPA repositories takes 3-5min on a thin client.
+    # 10s x 36 = 6 minute max startup window before Kubernetes gives up.
+    startupProbe:
+      tcpSocket:
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 36
+
+    # These only run after startupProbe succeeds.
     livenessProbe:
       tcpSocket:
         port: http
-      initialDelaySeconds: 90
       periodSeconds: 30
       timeoutSeconds: 10
       failureThreshold: 3
+
     readinessProbe:
       tcpSocket:
         port: http
-      initialDelaySeconds: 60
       periodSeconds: 10
-      timeoutSeconds: 10
+      timeoutSeconds: 5
       failureThreshold: 3
