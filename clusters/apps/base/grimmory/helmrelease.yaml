@@ -58,7 +58,7 @@ spec:
         size: 5Gi
       booksVolume:
         enabled: true
-        size: 50Gi
+        size: 15Gi
 
     resources:
       requests:
