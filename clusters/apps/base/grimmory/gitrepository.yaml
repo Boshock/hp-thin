@@ -1,0 +1,14 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: grimmory
+  namespace: grimmory
+spec:
+  interval: 12h
+  url: https://github.com/grimmory-tools/grimmory
+  ref:
+    tag: v3.0.3
+  ignore: |
+    # Ignore everything except the Helm chart
+    /*
+    !/deploy/helm/grimmory
