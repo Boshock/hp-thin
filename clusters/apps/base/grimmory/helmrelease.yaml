@@ -1,0 +1,86 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: grimmory
+  namespace: grimmory
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: deploy/helm/grimmory
+      sourceRef:
+        kind: GitRepository
+        name: grimmory
+        namespace: grimmory
+      interval: 12h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  driftDetection:
+    mode: enabled
+  values:
+    fullnameOverride: grimmory
+
+    image:
+      repository: ghcr.io/grimmory-tools/grimmory
+      tag: "v3.0.3"
+      pullPolicy: IfNotPresent
+
+    # MariaDB subchart (cloudpirates/mariadb:0.16.0)
+    mariadb:
+      enabled: true
+      image:
+        tag: 12.2.2
+      auth:
+        database: grimmory
+        username: grimmory
+        existingSecret: grimmory-secret
+        secretKeys:
+          userPasswordKey: MYSQL_PASSWORD
+          rootPasswordKey: MYSQL_ROOT_PASSWORD
+      service:
+        port: 3306
+
+    service:
+      type: ClusterIP
+      port: 6060
+
+    ingress:
+      enabled: false  # managed separately in staging overlay
+
+    persistence:
+      dataVolume:
+        enabled: true
+        size: 5Gi
+      booksVolume:
+        enabled: true
+        size: 50Gi
+
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "1000m"
+        memory: "1Gi"
+
+    # livenessProbe and readinessProbe use tcpSocket on port http (6060)
+    # which is the upstream chart default — appropriate for a JVM app
+    livenessProbe:
+      tcpSocket:
+        port: http
+      initialDelaySeconds: 90
+      periodSeconds: 30
+      timeoutSeconds: 10
+      failureThreshold: 3
+    readinessProbe:
+      tcpSocket:
+        port: http
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      timeoutSeconds: 10
+      failureThreshold: 3
